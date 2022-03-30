@@ -10,7 +10,7 @@ class AccountController extends GetConnect with ChangeNotifier {
   bool inProgress = false;
 
   // signed in user account
-  AccountModel? accountModel;
+  AccountModel? newAccountModel;
 
   // sign up
   Future<void> signUp(AccountModel accountModel) async {
@@ -29,7 +29,7 @@ class AccountController extends GetConnect with ChangeNotifier {
         // check code from response
         if (body['code'] == 0) {
           inProgress = false;
-          accountModel = AccountModel.fromJson(body['data']);
+          newAccountModel = AccountModel.fromJson(body['data']);
 
           notifyListeners();
           Get.offAll(() => const UsersList());
@@ -71,7 +71,7 @@ class AccountController extends GetConnect with ChangeNotifier {
         // check code from response
         if (body['code'] == 0) {
           inProgress = false;
-          accountModel = AccountModel.fromJson(body["data"]);
+          newAccountModel = AccountModel.fromJson(body["data"]);
           notifyListeners();
           Get.offAll(() => const UsersList());
           successNotification('Log in was successful');
@@ -88,7 +88,6 @@ class AccountController extends GetConnect with ChangeNotifier {
       }
     } catch (e) {
       inProgress = false;
-      print("Error from account creation $e");
       notifyListeners();
       errorNotification('An error occurred');
     }

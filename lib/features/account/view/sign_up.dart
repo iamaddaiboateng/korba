@@ -35,116 +35,114 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AccountController>(
-      builder: (_, account, __) => account.accountModel != null
-          ? const UsersList()
-          : ModalProgressHUD(
-              inAsyncCall: account.inProgress,
-              child: Scaffold(
-                appBar: AppBar(
-                  title: const Text('Sign Up'),
-                ),
-                body: Form(
-                  key: _formkey,
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextFormField(
-                          controller: _nameController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter your name';
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Name',
-                          ),
-                        ),
-                        TextFormField(
-                          controller: _emailController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter an email';
-                            } else if (!value.isEmail) {
-                              return 'Please enter a valid email';
-                            } else {
-                              return null;
-                            }
-                          },
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                          ),
-                        ),
-                        TextFormField(
-                          obscureText: true,
-                          controller: _passwordController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter a password';
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Password',
-                          ),
-                        ),
-                        TextFormField(
-                          obscureText: true,
-                          controller: _confirmPasswordController,
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please enter a password';
-                            } else if (value != _passwordController.text) {
-                              return 'Passwords do not match';
-                            }
-                            return null;
-                          },
-                          decoration: const InputDecoration(
-                            labelText: 'Confirm Password',
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        ElevatedButton(
-                            child: const Text('Sign Up'),
-                            onPressed: () {
-                              // check if form is valid
-                              if (_formkey.currentState!.validate()) {
-                                // create an account model
-                                AccountModel accountModel = AccountModel(
-                                  name: _nameController.text,
-                                  email: _emailController.text,
-                                  password: _passwordController.text,
-                                );
-
-                                // sign up
-                                // ensure there is internet connection
-                                connectivityChecker(action: () {
-                                  account.signUp(accountModel);
-                                });
-                              }
-                            }),
-                        Row(
-                          children: [
-                            const Text('Already have an account?'),
-                            TextButton(
-                              child: const Text('Sign In'),
-                              onPressed: () {
-                                Get.to(() => const LogInPage());
-                              },
-                            ),
-                          ],
-                        )
-                      ],
+      builder: (_, account, __) => ModalProgressHUD(
+        inAsyncCall: account.inProgress,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Sign Up'),
+          ),
+          body: Form(
+            key: _formkey,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
                     ),
                   ),
-                ),
+                  TextFormField(
+                    controller: _emailController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter an email';
+                      } else if (!value.isEmail) {
+                        return 'Please enter a valid email';
+                      } else {
+                        return null;
+                      }
+                    },
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                    ),
+                  ),
+                  TextFormField(
+                    obscureText: true,
+                    controller: _passwordController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a password';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                    ),
+                  ),
+                  TextFormField(
+                    obscureText: true,
+                    controller: _confirmPasswordController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a password';
+                      } else if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Confirm Password',
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                      child: const Text('Sign Up'),
+                      onPressed: () {
+                        // check if form is valid
+                        if (_formkey.currentState!.validate()) {
+                          // create an account model
+                          AccountModel accountModel = AccountModel(
+                            name: _nameController.text,
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                          );
+
+                          // sign up
+                          // ensure there is internet connection
+                          connectivityChecker(action: () {
+                            account.signUp(accountModel);
+                          });
+                        }
+                      }),
+                  Row(
+                    children: [
+                      const Text('Already have an account?'),
+                      TextButton(
+                        child: const Text('Sign In'),
+                        onPressed: () {
+                          Get.to(() => const LogInPage());
+                        },
+                      ),
+                    ],
+                  )
+                ],
               ),
             ),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:korda/features/account/controller/account_controller.dart';
 import 'package:korda/features/account/view/sign_up.dart';
+import 'package:korda/features/users/controller/user_controller.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -19,10 +20,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<AccountController>(
           create: (_) => AccountController(),
         ),
+        ChangeNotifierProvider<UserController>(
+          create: (_) => UserController(),
+        ),
       ],
       child: GetMaterialApp(
         title: 'Korda Demo',
         theme: ThemeData(
+          brightness: Brightness.dark,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.deepOrange,
+          ),
           // This is the theme of your application.
           //
           // Try running your application with "flutter run". You'll see the
@@ -32,7 +40,7 @@ class MyApp extends StatelessWidget {
           // or simply save your changes to "hot reload" in a Flutter IDE).
           // Notice that the counter didn't reset back to zero; the application
           // is not restarted.
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.deepOrange,
         ),
         home: const SignUp(),
       ),
