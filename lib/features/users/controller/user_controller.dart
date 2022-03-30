@@ -66,7 +66,7 @@ class UserController extends GetConnect with ChangeNotifier {
         Get.back();
         successNotification('User created successfully');
       } else {
-        errorNotification('${body['message']}');
+        errorNotification('$body');
       }
     } catch (e) {
       inProgress = false;
@@ -85,6 +85,9 @@ class UserController extends GetConnect with ChangeNotifier {
     if (lastPage == null) {
       lastPage = 1;
       Hive.box(kHiveLastRequestPage).put(kHiveLastRequestPage, lastPage);
+    } else {
+      lastPage++;
+      Hive.box(kHiveLastRequestPage).put(kHiveLastRequestPage, lastPage);
     }
 
     try {
@@ -93,9 +96,9 @@ class UserController extends GetConnect with ChangeNotifier {
         'authorization': 'Bearer ${accountModel?.token}',
       });
 
-      if (lastPage >= response.body['total_pages']) {
-        Hive.box(kHiveLastRequestPage).put(kHiveLastRequestPage, lastPage + 1);
-      }
+      // if (lastPage >= int.parse(response.body['total_pages'])) {
+      //   Hive.box(kHiveLastRequestPage).put(kHiveLastRequestPage, lastPage + 1);
+      // }
 
       final body = response.body;
 
@@ -112,7 +115,7 @@ class UserController extends GetConnect with ChangeNotifier {
 
         // successNotification('User created successfully');
       } else {
-        errorNotification('${body['message']}');
+        errorNotification('$body');
       }
     } catch (e) {
       inProgress = false;
@@ -131,19 +134,18 @@ class UserController extends GetConnect with ChangeNotifier {
         'authorization': 'Bearer ${accountModel?.token}',
       });
 
-      print('response body ${response.body}');
+      final body = response.body;
 
       if (response.statusCode == 200) {
-        final body = response.body;
         selectedUser = User.fromJson(body);
-      } else if (response.body == "Invalid token") {
+      } else if (response.statusCode == 401) {
         // errorNotification('You are not authorized to delete this user');
         Get.defaultDialog(
           title: 'You are not authorized to delete this user',
           middleText: 'You are not authorized to delete this user',
         );
       } else {
-        errorNotification('No User Found');
+        errorNotification("$body");
       }
     } catch (e) {
       errorNotification('an error occurred');
@@ -165,8 +167,6 @@ class UserController extends GetConnect with ChangeNotifier {
       );
 
       final body = response.body;
-      print("update response body ${body}");
-      print("user id ${selectedUser!.id}");
 
       inProgress = false;
       notifyListeners();

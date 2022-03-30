@@ -1,16 +1,49 @@
-# korda
+# Korba Flutter Test
 
-A new Flutter project.
+This ReadMe file contains the instructions for building the Korba Flutter Test application for android.
 
-## Getting Started
+## Tools needed to run this project
 
-This project is a starting point for a Flutter application.
+* Android Studio, VS Code, IntelliJ IDEA
+* Flutter SDK (version 2.10.1 was used in this project)
+* The Project is build with null-safety support
+* It may be run on a physical device or emulator
 
-A few resources to get you started if this is your first Flutter project:
+## Create a debug build
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+* Open the project in any of the IDEs listed above
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
+flutter run
+```
+
+## Create a release build
+
+* Open the project in any of the IDEs listed above
+
+```
+flutter build apk
+```
+
+# Project structure
+
+The main code of the project are located in the lib fold
+
+The lib contains the main.dart file and two other folders (core, features)
+
+The core folder contains strings and other utility call that will be need throughout the app
+
+The features folder contains main functionilities of the app grouped in related sub-folders 
+
+Each feature (in this case account and users) has it's own model, view and controller folders
+
+# Challenges
+
+Noticed the api token wasn't very consistent. At one point, all tokens generated after sign up couldn't be use to access the api endpoint.
+
+All api calls resulted in "Invid Token".
+
+The challenge persisted when testing with Postman and within the app.
+
+Tokens generated after login however works fine
+

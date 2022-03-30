@@ -23,9 +23,6 @@ class AccountController extends GetConnect with ChangeNotifier {
       final body = response.body;
 
       if (response.isOk) {
-        // final accountBox = await Hive.openBox<AccountModel>(kAccountBox);
-        // accountBox.put(kAccountBox, accountModel);
-
         // check code from response
         if (body['code'] == 0) {
           inProgress = false;
@@ -54,7 +51,8 @@ class AccountController extends GetConnect with ChangeNotifier {
   }
 
   // log in
-  Future<void> logIn(AccountModel accountModel) async {
+  // the function is also called when the current token expires
+  Future<void> logIn(AccountModel accountModel, {bool isReauth = false}) async {
     inProgress = true;
     notifyListeners();
 
@@ -65,15 +63,14 @@ class AccountController extends GetConnect with ChangeNotifier {
       print("response body $body");
 
       if (response.isOk) {
-        // final accountBox = await Hive.openBox<AccountModel>(kAccountBox);
-        // accountBox.put(kAccountBox, accountModel);
-
         // check code from response
         if (body['code'] == 0) {
           inProgress = false;
           newAccountModel = AccountModel.fromJson(body["data"]);
           notifyListeners();
-          Get.offAll(() => const UsersList());
+          if (!isReauth) {
+            Get.offAll(() => const UsersList());
+          }
           successNotification('Log in was successful');
         } else {
           errorNotification('${body['message']}');
