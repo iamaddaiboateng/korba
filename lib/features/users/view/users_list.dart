@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:korda/core/utils/connectivity_checker.dart';
+import 'package:korda/core/utils/hive_strings.dart';
 import 'package:korda/features/users/controller/user_controller.dart';
 import 'package:korda/features/users/view/create_edit_users_widget.dart';
 import 'package:korda/features/users/view/user_details.dart';
 import 'package:modal_progress_hud_alt/modal_progress_hud_alt.dart';
 import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+import '../model/user_model.dart';
 
 class UsersList extends StatefulWidget {
   const UsersList({Key? key}) : super(key: key);
@@ -21,6 +26,9 @@ class _UsersListState extends State<UsersList> {
       Provider.of<UserController>(context, listen: false).getAllUsers();
     });
   }
+
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
 
   @override
   void initState() {
@@ -50,23 +58,38 @@ class _UsersListState extends State<UsersList> {
           appBar: AppBar(
             title: const Text('Users'),
           ),
-          body: ListView.builder(
-            itemCount: userController.users.length,
-            itemBuilder: ((context, index) {
-              final user = userController.users[index];
-              return ListTile(
-                onTap: () {
-                  userController.setSelectedUser(user);
-                  userController.getParticularUser();
-                  Get.to(() => const UserDetailspage());
-                },
-                title: Text(user.name),
-                subtitle: Text(user.email),
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(user.imageUrl!),
-                ),
-              );
-            }),
+          body: ValueListenableBuilder(
+            valueListenable: Hive.box(kHiveAllUsers).listenable(),
+            builder: (_, Box usersBox, __) => SmartRefresher(
+              controller: _refreshController,
+              enablePullUp: true,
+              enablePullDown: false,
+              onLoading: () {
+                Provider.of<UserController>(context, listen: false)
+                    .getAllUsers();
+                _refreshController.loadComplete();
+              },
+              child: ListView.builder(
+                itemCount: usersBox.length,
+                itemBuilder: ((context, index) {
+                  final userFromDatabase = usersBox.getAt(index);
+                  User user = User.fromJson(userFromDatabase);
+
+                  return ListTile(
+                    onTap: () {
+                      userController.setSelectedUser(user);
+                      userController.getParticularUser();
+                      Get.to(() => const UserDetailspage());
+                    },
+                    title: Text(user.name),
+                    subtitle: Text(user.email),
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(user.imageUrl ?? ''),
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
         ),
       ),

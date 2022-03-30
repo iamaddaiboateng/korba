@@ -11,25 +11,26 @@ class User {
       this.imageUrl,
       this.id});
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
+  factory User.fromJson(Map<dynamic, dynamic> json) => User(
       name: json[kName],
       email: json[kEmail],
       location: json[kLocation],
       imageUrl: json[kImageUrl],
       id: json[kId]);
 
-  Map<String, dynamic> toJson() => {
+  Map<dynamic, dynamic> toJson() => {
         kName: name,
         kEmail: email,
         kLocation: location,
         // kId: id,
       };
 
-      // create user model to json with id 
-  Map<String, dynamic> toJsonWithId() => {
+  // create user model to json with id
+  Map<dynamic, dynamic> toJsonWithId() => {
         kName: name,
         kEmail: email,
         kLocation: location,
         kId: id,
+        kImageUrl: imageUrl,
       };
 }

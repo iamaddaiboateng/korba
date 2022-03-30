@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:korda/core/utils/hive_strings.dart';
 import 'package:korda/features/account/controller/account_controller.dart';
 import 'package:korda/features/account/model/account_model.dart';
 import 'package:korda/features/users/model/user_model.dart';
@@ -17,6 +19,9 @@ class UserController extends GetConnect with ChangeNotifier {
 
   // selected user variable
   User? selectedUser;
+
+  // get hive all users box
+  final usersBox = Hive.box(kHiveAllUsers);
 
   // create a function that sets the selected user
   setSelectedUser(User newUser) {
@@ -75,14 +80,22 @@ class UserController extends GetConnect with ChangeNotifier {
     inProgress = true;
     // notifyListeners();
 
-    // clear users list
-    users.clear();
-    // notifyListeners();
+    var lastPage = Hive.box(kHiveLastRequestPage).get(kHiveLastRequestPage);
+
+    if (lastPage == null) {
+      lastPage = 1;
+      Hive.box(kHiveLastRequestPage).put(kHiveLastRequestPage, lastPage);
+    }
 
     try {
-      final response = await get("${ApiStrings.users}?page=1", headers: {
+      final response =
+          await get("${ApiStrings.users}?page=$lastPage", headers: {
         'authorization': 'Bearer ${accountModel?.token}',
       });
+
+      if (lastPage >= response.body['total_pages']) {
+        Hive.box(kHiveLastRequestPage).put(kHiveLastRequestPage, lastPage + 1);
+      }
 
       final body = response.body;
 
@@ -92,7 +105,8 @@ class UserController extends GetConnect with ChangeNotifier {
       if (response.statusCode == 200) {
         for (var user in body['data']) {
           // print("user ${user['name']}");
-          users.add(User.fromJson(user));
+          User newUser = User.fromJson(user);
+          usersBox.put(newUser.id, newUser.toJsonWithId());
         }
         notifyListeners();
 
@@ -163,6 +177,10 @@ class UserController extends GetConnect with ChangeNotifier {
         // final userBox = await Hive.openBox<User>(kUserBox);
         // userBox.put(kUserBox, user);
         selectedUser = User.fromJson(body);
+        usersBox.put(
+          selectedUser!.id,
+          selectedUser!.toJsonWithId(),
+        );
         Get.back();
         successNotification('User updated successfully');
       } else if (response.body == "Invalid token") {
@@ -183,29 +201,30 @@ class UserController extends GetConnect with ChangeNotifier {
 
   // delete user
   deleteUser() async {
-    // try {
-    final response =
-        await delete("${ApiStrings.users}${selectedUser!.id}", headers: {
-      'authorization': 'Bearer ${accountModel?.token}',
-    });
+    try {
+      final response =
+          await delete("${ApiStrings.users}${selectedUser!.id}", headers: {
+        'authorization': 'Bearer ${accountModel?.token}',
+      });
 
-    print("User delete response body ${response.body}");
+      print("User delete response body ${response.body}");
 
-    if (response.statusCode == 200) {
-      Get.off(() => const UsersList());
-      // removeUser(selectedUser!);
-      successNotification('User deleted successfully');
-    } else if (response.statusCode == 404) {
-      errorNotification('No User Found');
-    } else if (response.body == "Invalid token") {
-      // errorNotification('You are not authorized to delete this user');
-      Get.defaultDialog(
-        title: 'You are not authorized to delete this user',
-        middleText: 'You are not authorized to delete this user',
-      );
+      if (response.statusCode == 200) {
+        Get.offAll(() => const UsersList());
+        // removeUser(selectedUser!);
+        usersBox.delete(selectedUser!.id);
+        successNotification('User deleted successfully');
+      } else if (response.statusCode == 404) {
+        errorNotification('No User Found');
+      } else if (response.body == "Invalid token") {
+        // errorNotification('You are not authorized to delete this user');
+        Get.defaultDialog(
+          title: 'You are not authorized to delete this user',
+          middleText: 'You are not authorized to delete this user',
+        );
+      }
+    } catch (e) {
+      errorNotification('an error occurred');
     }
-    // } catch (e) {
-    //   errorNotification('an error occurred');
-    // }
   }
 }
